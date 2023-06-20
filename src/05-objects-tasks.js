@@ -20,8 +20,10 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  this.getArea = () => this.width * this.height;
 }
 
 
@@ -35,8 +37,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +53,11 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const ReturnedObj = proto.constructor;
+  const obj = JSON.parse(json);
+  const propsValues = Object.values(obj);
+  return new ReturnedObj(...propsValues);
 }
 
 
@@ -111,35 +116,224 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+
+  stringify() {
+    const result = Object.getOwnPropertyDescriptor(this, 'result').value;
+    Object.defineProperty(this, 'result', { value: '' });
+    return result;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    const elementsCount = Object.getOwnPropertyDescriptor(this, 'elementCounter').value;
+    if (elementsCount > 0) throw Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 1;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}${value}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      elementCounter: {
+        value: 1,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    const idCount = Object.getOwnPropertyDescriptor(this, 'idCounter').value;
+    if (idCount > 0) throw Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 2;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}#${value}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      idCounter: {
+        value: 1,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 3;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}.${value}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 4;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}[${value}]`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 5;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}:${value}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    const pseudoElementCount = Object.getOwnPropertyDescriptor(this, 'pseudoElementCounter').value;
+    if (pseudoElementCount > 0) throw Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    const currentPriority = Object.getOwnPropertyDescriptor(this, 'selectorPriority').value;
+    const priority = 6;
+    if (currentPriority > priority) throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    const prevValue = Object.getOwnPropertyDescriptor(this, 'result').value;
+    const currentValue = `${prevValue}::${value}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      pseudoElementCounter: {
+        value: 1,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+      selectorPriority: {
+        value: priority,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
+  },
+
+  combine(selector1, combinator, selector2) {
+    const getResult = (selector) => selector.stringify();
+    const res1 = getResult(selector1);
+    const res2 = getResult(selector2);
+    const currentValue = `${res1} ${combinator} ${res2}`;
+    return Object.defineProperties(Object.create(this), {
+      ...Object.getOwnPropertyDescriptors(this),
+      result: {
+        value: currentValue,
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      },
+    });
   },
 };
 
+Object.defineProperties(cssSelectorBuilder, {
+  result: {
+    value: '',
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
+  elementCounter: {
+    value: 0,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
+  idCounter: {
+    value: 0,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
+  pseudoElementCounter: {
+    value: 0,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
+  selectorPriority: {
+    value: 0,
+    writable: true,
+    enumerable: true,
+    configurable: true,
+  },
+});
 
 module.exports = {
   Rectangle,
